@@ -1,5 +1,5 @@
 const Modifier = require('./modifier');
 
 module.exports = {
-  Eq: new Modifier(),
+  Eq: wanted => new Modifier(given => wanted === given),
 };

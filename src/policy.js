@@ -14,8 +14,6 @@ class Policy {
     this.actions = props.actions;
     this.context = props.context;
     this.effect = props.effect;
-
-    Object.seal(this);
   }
 
   static validateProps(props) {
@@ -37,7 +35,7 @@ class Policy {
     if (!(props.effect instanceof Effect)) {
       throw new Error(
         `Invalid effect: ${props.effect}. Valid effects are effects.ALLOW ` +
-        `and effects.DENY.`,
+          `and effects.DENY.`,
       );
     }
 
@@ -45,7 +43,7 @@ class Policy {
       if (!Array.isArray(props.subjects)) {
         throw new Error(
           `Invalid subjects: ${props.subjects}. Expected an array of ` +
-          `modifiers.`,
+            `modifiers.`,
         );
       }
       // Iterate over every subject.
@@ -58,7 +56,7 @@ class Policy {
       if (!Array.isArray(props.resources)) {
         throw new Error(
           `Invalid resources: ${props.resources}. Expected an array of ` +
-          `modifiers`,
+            `modifiers`,
         );
       }
       // Iterate over every resource.
@@ -71,7 +69,7 @@ class Policy {
       if (!Array.isArray(props.actions)) {
         throw new Error(
           `Invalid actions: ${props.actions}. Expected an array of ` +
-          `modifiers`,
+            `modifiers`,
         );
       }
       // Iterate over every resource.
@@ -84,7 +82,7 @@ class Policy {
       if (props.context.constructor !== Object) {
         throw new Error(
           `Invalid context: ${props.context}. Expected a map of keys and ` +
-          `modifiers.`,
+            `modifiers.`,
         );
       }
       // Validate the context.
@@ -105,8 +103,8 @@ class Policy {
       ) {
         throw new Error(
           `Invalid policy attribute: ${k}. Valid attributes include ` +
-          `"subjects", "resources", "context", "effect", "id", and ` +
-          `"description".`,
+            `"subjects", "resources", "context", "effect", "id", and ` +
+            `"description".`,
         );
       }
     }
@@ -124,3 +122,5 @@ class Policy {
     }
   }
 }
+
+module.exports = Policy;
