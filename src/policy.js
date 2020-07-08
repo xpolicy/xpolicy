@@ -4,6 +4,11 @@ const Effect = require('./effect');
 const Rule = require('./rule');
 
 class Policy {
+  /**
+   * Constructs a new policy.
+   *
+   * @param props {any} The properties of the policy.
+   */
   constructor(props) {
     Policy.validateProps(props);
 
@@ -16,6 +21,13 @@ class Policy {
     this.effect = props.effect;
   }
 
+  /**
+   * Validates the given properties for the policy.
+   *
+   * @param props {any}
+   * @returns {void}
+   * @throws {Error} if the properties are invalid.
+   */
   static validateProps(props) {
     if (!props) {
       throw new Error('Policy requires a map of properties.');
@@ -111,6 +123,13 @@ class Policy {
     }
   }
 
+  /**
+   * Recursively validates whether the given rule is valid.
+   *
+   * @param rule {any} The rule to check.
+   * @returns {void}
+   * @throws {Error} if the rule is invalid.
+   */
   static recursivelyValidateRule(rule) {
     if (rule instanceof Rule) return;
     if (rule.constructor !== Object) {

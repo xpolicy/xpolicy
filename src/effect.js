@@ -1,6 +1,11 @@
 'use strict';
 
 class Effect {
+  /**
+   * Constructs a new effect.
+   *
+   * @param allowed {boolean}
+   */
   constructor(allowed) {
     this._allowed = allowed;
   }

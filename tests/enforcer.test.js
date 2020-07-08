@@ -9,19 +9,19 @@ const { Eq } = require('../src/builtin/relations');
 describe('add policy', () => {
   it('validates the props', () => {
     // Mock the validateProps method.
-    const validateProps = Enforcer.validateProps;
+    const validateProps = Enforcer.validatePolicy;
 
-    Enforcer.validateProps = jest.fn();
+    Enforcer.validatePolicy = jest.fn();
     const props = {};
     const enforcer = new Enforcer();
     enforcer.addPolicy(props);
 
     expect(enforcer).toBeDefined();
-    expect(Enforcer.validateProps).toHaveBeenCalledTimes(1);
-    expect(Enforcer.validateProps).toHaveBeenCalledWith(props);
+    expect(Enforcer.validatePolicy).toHaveBeenCalledTimes(1);
+    expect(Enforcer.validatePolicy).toHaveBeenCalledWith(props);
 
     // Restore the original validateProps method.
-    Enforcer.validateProps = validateProps;
+    Enforcer.validatePolicy = validateProps;
   });
 });
 
@@ -34,7 +34,7 @@ describe('validateProps', () => {
 
     test.each(testTable)('when the props are %j', (props, msg) => {
       try {
-        Enforcer.validateProps(props);
+        Enforcer.validatePolicy(props);
         expect(true).toEqual(false);
       } catch (e) {
         expect(e.message).toEqual(msg);
@@ -81,8 +81,8 @@ describe('checkPolicy', () => {
 
   it('validates every property', () => {
     // Mock the validateProps method.
-    const validateProps = Enforcer.validateProps;
-    Enforcer.validateProps = jest.fn();
+    const validateProps = Enforcer.validatePolicy;
+    Enforcer.validatePolicy = jest.fn();
 
     const validateOneInArray = Enforcer.validateOneInArray;
     const recursivelyValidateParallel = Enforcer.recursivelyValidateParallel;
@@ -133,7 +133,7 @@ describe('checkPolicy', () => {
     );
 
     // Restore the original validateProps method.
-    Enforcer.validateProps = validateProps;
+    Enforcer.validatePolicy = validateProps;
     Enforcer.recursivelyValidateParallel = recursivelyValidateParallel;
     Enforcer.validateOneInArray = validateOneInArray;
   });

@@ -5,16 +5,32 @@ const Operation = require('./operation');
 const Rule = require('./rule');
 
 class Enforcer {
+  /**
+   * Constructs a new enforcer.
+   */
   constructor() {
     this.policies = [];
   }
 
+  /**
+   * Adds a new policy to the array of enforced policies.
+   *
+   * @param {Policy} policy
+   */
   addPolicy(policy) {
-    Enforcer.validateProps(policy);
+    Enforcer.validatePolicy(policy);
 
+    // TODO: Check duplicate ids
     this.policies.push(policy);
   }
 
+  /**
+   * Checks whether the given operation is allowed according to the enforced
+   * policies.
+   *
+   * @param operation {Operation} The operation to check.
+   * @returns {boolean} whether the operation is allowed.
+   */
   isAllowed(operation) {
     for (const p of this.policies) {
       try {
@@ -89,6 +105,16 @@ class Enforcer {
     return false;
   }
 
+  /**
+   * Recursively validates the properties of the operation data according to the
+   * properties of the rule.
+   *
+   * An error with a reason for the invalidation is thrown if validation fails.
+   *
+   * @param rule The rule to enforce.
+   * @param opData The operation data to check.
+   * @returns {void}
+   */
   static recursivelyValidateParallel(rule, opData) {
     if (!rule) {
       throw new Error(
@@ -121,7 +147,14 @@ class Enforcer {
     }
   }
 
-  static validateProps(policy) {
+  /**
+   * Validates the given variable and checks whether it is a policy object.
+   *
+   * @param policy The variable to check.
+   * @returns {void}
+   * @throws {Error} if the policy is invalid.
+   */
+  static validatePolicy(policy) {
     if (!policy) {
       throw new Error('Enforcer requires a policy to enforce.');
     }

@@ -3,29 +3,29 @@
 const Rule = require('./rule');
 
 const checkAndErr = {
-  Rule: r => {
-    if (!(r instanceof Rule)) {
-      throw new Error(`Invalid rule: ${r}. Expected a rule object.`);
+  Rule: rule => {
+    if (!(rule instanceof Rule)) {
+      throw new Error(`Invalid rule: ${rule}. Expected a rule object.`);
     }
   },
-  Integer: v => {
-    if (!Number.isInteger(v)) {
-      throw new Error(`Invalid integer: ${v}.`);
+  Integer: value => {
+    if (!Number.isInteger(value)) {
+      throw new Error(`Invalid integer: ${value}.`);
     }
   },
-  Array: a => {
-    if (!Array.isArray(a)) {
-      throw new Error(`Invalid array: ${a}.`);
+  Array: array => {
+    if (!Array.isArray(array)) {
+      throw new Error(`Invalid array: ${array}.`);
     }
   },
 };
 
 const checkAndWarn = {
-  Primitive: v => {
-    if (typeof v === 'object' && v !== null) {
+  Primitive: value => {
+    if (typeof value === 'object' && value !== null) {
       console.warn(
-        `Warning: ${v} is not a primitive. ` +
-          `The rule may lead to undesired results.`,
+        `Warning: ${value} is not a primitive. ` +
+        `The rule may lead to undesired results.`,
       );
     }
   },

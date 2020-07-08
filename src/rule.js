@@ -8,10 +8,22 @@ class Rule {
     this.validator = props.validator;
   }
 
+  /**
+   * Runs the validator on the given data.
+   *
+   * @param data The data to validate.
+   * @returns {boolean} whether the data is valid.
+   */
   validate(data) {
     return this.validator(data);
   }
 
+  /**
+   * Validates the given rule properties.
+   *
+   * @param props {any} The properties to validate.
+   * @returns {void}
+   */
   static validateProps(props) {
     if (!props) {
       throw new Error('Rule requires a map of properties.');
