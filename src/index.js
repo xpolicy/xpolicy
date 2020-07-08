@@ -1,3 +1,5 @@
+'use strict';
+
 const Enforcer = require('./enforcer');
 const Operation = require('./operation');
 const Policy = require('./policy');

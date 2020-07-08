@@ -1,3 +1,5 @@
+'use strict';
+
 const Rule = require('./rule');
 
 const checkAndErr = {

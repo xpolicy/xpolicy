@@ -1,3 +1,5 @@
+'use strict';
+
 const Policy = require('../src/policy');
 const { effects } = require('../src/builtin');
 const Enforcer = require('../src/enforcer');

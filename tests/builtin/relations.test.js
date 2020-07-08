@@ -1,3 +1,5 @@
+'use strict';
+
 const relations = require('../../src/builtin/relations');
 
 describe('relational rules correctly validate the input', () => {

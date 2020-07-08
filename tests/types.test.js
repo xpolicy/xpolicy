@@ -1,3 +1,5 @@
+'use strict';
+
 const types = require('../src/types');
 
 describe('checks throw an error', () => {

@@ -1,3 +1,5 @@
+'use strict';
+
 const Rule = require('../../src/rule');
 const logic = require('../../src/builtin/logic');
 

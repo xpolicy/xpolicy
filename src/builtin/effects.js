@@ -1,3 +1,5 @@
+'use strict';
+
 const Effect = require('../effect');
 
 module.exports = {

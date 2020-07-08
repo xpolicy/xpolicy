@@ -1,3 +1,5 @@
+'use strict';
+
 const effects = require('./effects');
 const logic = require('./logic');
 const relations = require('./relations');

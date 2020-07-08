@@ -1,3 +1,5 @@
+'use strict';
+
 const abac = require('../src');
 const { Eq, Any } = abac.rules;
 
