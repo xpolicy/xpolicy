@@ -1,7 +1,7 @@
 'use strict';
 
 const abac = require('../src');
-const { Eq, Any } = abac.rules;
+const { Eq, Any, StartsWith } = abac.rules;
 
 describe('abac', () => {
   it('correctly enforces a policy', () => {
@@ -9,16 +9,20 @@ describe('abac', () => {
       id: 1,
       actions: [Any()],
       subjects: [
+        Eq('contact_tracer'),
         {
           role: Eq('admin'),
         },
-        Eq('contact_tracer'),
       ],
       resources: [Eq('control_panel')],
+      context: {
+        ip: StartsWith('12'),
+      },
       effect: abac.Allow,
     });
 
-    const enforcer = new abac.Enforcer(policy);
+    const enforcer = new abac.Enforcer();
+    enforcer.addPolicy(policy);
 
     const operation = new abac.Operation({
       action: 'modify',
@@ -26,6 +30,9 @@ describe('abac', () => {
         role: 'admin',
       },
       resource: 'control_panel',
+      context: {
+        ip: '123',
+      },
     });
 
     expect(enforcer.isAllowed(operation)).toBe(true);

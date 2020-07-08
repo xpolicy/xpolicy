@@ -5,61 +5,83 @@ const Operation = require('./operation');
 const Rule = require('./rule');
 
 class Enforcer {
-  constructor(policy) {
+  constructor() {
+    this.policies = [];
+  }
+
+  addPolicy(policy) {
     Enforcer.validateProps(policy);
 
-    this.policy = policy;
+    this.policies.push(policy);
   }
 
   isAllowed(operation) {
+    for (const p of this.policies) {
+      try {
+        Enforcer.checkPolicy(operation, p);
+        return true;
+      } catch (e) {}
+    }
+    return false;
+  }
+
+  /**
+   * Checks if the operation is allowed according to the given policy.
+   *
+   * @param operation {Operation} The attempted operation.
+   * @param policy {Policy} The policy to enforce.
+   * @returns {boolean} whether the operation is allowed.
+   */
+  static checkPolicy(operation, policy) {
     if (!(operation instanceof Operation)) {
       throw new Error(
         `Invalid operation: ${operation}. Expected an operation object.`,
       );
     }
 
-    const effect = this.policy.effect.isAllowed();
+    const effect = policy.effect.isAllowed();
 
-    if (this.policy.actions) {
-      if (!Enforcer.validateOneInArray(this.policy.actions, operation.action)) {
+    if (policy.actions) {
+      if (!Enforcer.validateOneInArray(policy.actions, operation.action)) {
         return !effect;
       }
     }
 
-    if (this.policy.subjects) {
-      if (
-        !Enforcer.validateOneInArray(this.policy.subjects, operation.subject)
-      ) {
+    if (policy.subjects) {
+      if (!Enforcer.validateOneInArray(policy.subjects, operation.subject)) {
         return !effect;
       }
     }
 
-    if (this.policy.resources) {
-      if (
-        !Enforcer.validateOneInArray(this.policy.resources, operation.resource)
-      ) {
+    if (policy.resources) {
+      if (!Enforcer.validateOneInArray(policy.resources, operation.resource)) {
         return !effect;
       }
     }
 
-    if (this.policy.context) {
+    if (policy.context) {
       try {
-        !Enforcer.recursivelyValidateParallel(
-          this.policy.context,
-          operation.context,
-        );
+        Enforcer.recursivelyValidateParallel(policy.context, operation.context);
       } catch (e) {
-        return false;
+        return !effect;
       }
     }
 
     return effect;
   }
 
-  static validateOneInArray(array, test) {
+  /**
+   * Checks if the operation data is allowed by at least one of the rules in the
+   * array.
+   *
+   * @param array {Rule[]} The array of rules.
+   * @param opData {any} The operation data.
+   * @returns {boolean} whether the operation data is allowed.
+   */
+  static validateOneInArray(array, opData) {
     for (const rule of array) {
       try {
-        Enforcer.recursivelyValidateParallel(rule, test);
+        Enforcer.recursivelyValidateParallel(rule, opData);
         // Subject validation passes if at least one subject matches.
         return true;
       } catch (e) {}

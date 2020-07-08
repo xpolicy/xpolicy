@@ -6,14 +6,15 @@ const Enforcer = require('../src/enforcer');
 const Operation = require('../src/operation');
 const { Eq } = require('../src/builtin/relations');
 
-describe('constructor', () => {
+describe('add policy', () => {
   it('validates the props', () => {
     // Mock the validateProps method.
     const validateProps = Enforcer.validateProps;
 
     Enforcer.validateProps = jest.fn();
     const props = {};
-    const enforcer = new Enforcer(props);
+    const enforcer = new Enforcer();
+    enforcer.addPolicy(props);
 
     expect(enforcer).toBeDefined();
     expect(Enforcer.validateProps).toHaveBeenCalledTimes(1);
@@ -43,23 +44,39 @@ describe('validateProps', () => {
 });
 
 describe('isAllowed', () => {
+  it('iterates over every policy', () => {
+    const checkPolicy = Enforcer.checkPolicy;
+    Enforcer.checkPolicy = jest.fn(() => {
+      throw new Error('Policy check error.');
+    });
+
+    const enforcer = new Enforcer();
+    const policy1 = { id: 1 };
+    const policy2 = { id: 2 };
+    const policy3 = { id: 3 };
+    enforcer.policies = [policy1, policy2, policy3];
+
+    const operation = {};
+    expect(enforcer.isAllowed(operation)).toBe(false);
+
+    expect(Enforcer.checkPolicy).toHaveBeenCalledTimes(3);
+    expect(Enforcer.checkPolicy).toHaveBeenCalledWith(operation, policy1);
+    expect(Enforcer.checkPolicy).toHaveBeenCalledWith(operation, policy2);
+    expect(Enforcer.checkPolicy).toHaveBeenCalledWith(operation, policy3);
+
+    Enforcer.checkPolicy = checkPolicy;
+  });
+});
+
+describe('checkPolicy', () => {
   it('throws an error when the operation is invalid', () => {
-    // Mock the validateProps method.
-    const validateProps = Enforcer.validateProps;
-    Enforcer.validateProps = jest.fn();
-
-    const enforcer = new Enforcer({});
-
     try {
-      enforcer.isAllowed('foo');
+      Enforcer.checkPolicy('foo', {});
     } catch (e) {
       expect(e.message).toEqual(
         'Invalid operation: foo. Expected an operation object.',
       );
     }
-
-    // Restore the original validateProps method.
-    Enforcer.validateProps = validateProps;
   });
 
   it('validates every property', () => {
@@ -71,7 +88,7 @@ describe('isAllowed', () => {
     const recursivelyValidateParallel = Enforcer.recursivelyValidateParallel;
 
     Enforcer.validateOneInArray = jest.fn(() => true);
-    Enforcer.recursivelyValidateParallel = jest.fn(() => true);
+    Enforcer.recursivelyValidateParallel = jest.fn();
 
     const actions = {};
     const subjects = {};
@@ -87,7 +104,6 @@ describe('isAllowed', () => {
       },
     };
 
-    const enforcer = new Enforcer(policy);
     const opAction = {};
     const opSubject = {};
     const opResource = {};
@@ -98,7 +114,7 @@ describe('isAllowed', () => {
       resource: opResource,
       context: opContext,
     });
-    expect(enforcer.isAllowed(operation)).toBe(true);
+    expect(Enforcer.checkPolicy(operation, policy)).toBe(true);
 
     expect(Enforcer.validateOneInArray).toHaveBeenCalledTimes(3);
     expect(Enforcer.validateOneInArray).toHaveBeenCalledWith(actions, opAction);
@@ -125,52 +141,58 @@ describe('isAllowed', () => {
   describe('returns false if a property does not match', () => {
     const testTable = [
       [
+        new Operation({
+          actions: 'stop',
+        }),
         new Policy({
           id: 1,
           actions: [Eq('go')],
           effect: effects.Allow,
         }),
-        new Operation({
-          actions: 'stop',
-        }),
       ],
       [
+        new Operation({
+          subject: 'flag',
+        }),
         new Policy({
           id: 1,
           subjects: [Eq('sign')],
           effect: effects.Allow,
         }),
-        new Operation({
-          subject: 'flag',
-        }),
       ],
       [
+        new Operation({
+          resource: 'flag',
+        }),
         new Policy({
           id: 1,
           resources: [Eq('sign')],
           effect: effects.Allow,
         }),
-        new Operation({
-          resource: 'flag',
-        }),
       ],
       [
+        new Operation({
+          context: { place: 'flag' },
+        }),
         new Policy({
           id: 1,
           context: { place: Eq('sign') },
           effect: effects.Allow,
         }),
-        new Operation({
-          context: { place: 'flag' },
+      ],
+      [
+        new Operation({}),
+        new Policy({
+          id: 1,
+          effect: effects.Deny,
         }),
       ],
     ];
 
     test.each(testTable)(
-      'when the policy and operation are %p and %p',
-      (policy, operation) => {
-        const enforcer = new Enforcer(policy);
-        expect(enforcer.isAllowed(operation)).toBe(false);
+      'when the operation and policy are %p and %p',
+      (operation, policy) => {
+        expect(Enforcer.checkPolicy(operation, policy)).toBe(false);
       },
     );
   });
