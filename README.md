@@ -6,7 +6,10 @@
 # Quick start
 
 ```shell script
+# Install with NPM
 npm install xpolicy
+
+# Install with Yarn
 yarn add xpolicy
 ```
 
