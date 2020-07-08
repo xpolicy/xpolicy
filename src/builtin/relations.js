@@ -1,7 +1,7 @@
 'use strict';
 
 const Rule = require('../rule');
-const types = require('../types');
+const types = require('../type');
 
 module.exports = {
   Eq: wanted => {
@@ -19,28 +19,28 @@ module.exports = {
     });
   },
   Greater: threshold => {
-    types.checkAndErr.Integer(threshold);
+    types.checkAndErr.Number(threshold);
     return new Rule({
       name: 'greater than',
       validator: given => Number.isInteger(given) && given > threshold,
     });
   },
   Less: threshold => {
-    types.checkAndErr.Integer(threshold);
+    types.checkAndErr.Number(threshold);
     return new Rule({
       name: 'less than',
       validator: given => Number.isInteger(given) && given < threshold,
     });
   },
   GreaterOrEq: threshold => {
-    types.checkAndErr.Integer(threshold);
+    types.checkAndErr.Number(threshold);
     return new Rule({
       name: 'greater than or equal to',
       validator: given => Number.isInteger(given) && given >= threshold,
     });
   },
   LessOrEq: threshold => {
-    types.checkAndErr.Integer(threshold);
+    types.checkAndErr.Number(threshold);
     return new Rule({
       name: 'less than or equal to',
       validator: given => Number.isInteger(given) && given <= threshold,

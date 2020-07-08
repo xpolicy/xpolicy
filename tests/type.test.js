@@ -1,10 +1,10 @@
 'use strict';
 
-const types = require('../src/types');
+const types = require('../src/type');
 
 describe('checks throw an error', () => {
   const testTable = [
-    [types.checkAndErr.Integer, 'foo', 'Invalid integer: foo.'],
+    [types.checkAndErr.Number, 'foo', 'Invalid number: foo.'],
     [
       types.checkAndErr.Rule,
       'foo',

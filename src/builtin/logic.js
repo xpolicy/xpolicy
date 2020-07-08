@@ -1,7 +1,7 @@
 'use strict';
 
 const Rule = require('../rule');
-const types = require('../types');
+const types = require('../type');
 
 module.exports = {
   Any: () =>
