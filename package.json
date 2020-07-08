@@ -9,12 +9,14 @@
   "author": "Aiyan Jiang",
   "scripts": {
     "test": "jest",
-    "lint": "eslint src/**/*.js",
-    "format": "prettier --write \"src/**/*.{js,json}\""
+    "coverage": "jest --coverage",
+    "lint": "eslint \"{src,tests}/**/*.js\"",
+    "format": "prettier --write \"{src,tests}/**/*.{js,json}\""
   },
   "dependencies": {},
   "devDependencies": {
     "eslint": "^7.4.0",
+    "eslint-plugin-jest": "^23.18.0",
     "jest": "^26.1.0",
     "prettier": "^2.0.5"
   }

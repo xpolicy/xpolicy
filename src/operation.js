@@ -1,3 +1,5 @@
+'use strict';
+
 class Operation {
   constructor(props) {
     this.subject = props.subject;

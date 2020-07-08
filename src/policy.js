@@ -1,7 +1,7 @@
 'use strict';
 
 const Effect = require('./effect');
-const Modifier = require('./modifier');
+const Rule = require('./rule');
 
 class Policy {
   constructor(props) {
@@ -34,8 +34,8 @@ class Policy {
     }
     if (!(props.effect instanceof Effect)) {
       throw new Error(
-        `Invalid effect: ${props.effect}. Valid effects are effects.ALLOW ` +
-          `and effects.DENY.`,
+        `Invalid effect: ${props.effect}. Valid effects are ALLOW ` +
+          `and DENY.`,
       );
     }
 
@@ -43,7 +43,7 @@ class Policy {
       if (!Array.isArray(props.subjects)) {
         throw new Error(
           `Invalid subjects: ${props.subjects}. Expected an array of ` +
-            `modifiers.`,
+            `rules.`,
         );
       }
       // Iterate over every subject.
@@ -56,7 +56,7 @@ class Policy {
       if (!Array.isArray(props.resources)) {
         throw new Error(
           `Invalid resources: ${props.resources}. Expected an array of ` +
-            `modifiers`,
+            `rules.`,
         );
       }
       // Iterate over every resource.
@@ -68,8 +68,7 @@ class Policy {
     if (props.actions) {
       if (!Array.isArray(props.actions)) {
         throw new Error(
-          `Invalid actions: ${props.actions}. Expected an array of ` +
-            `modifiers`,
+          `Invalid actions: ${props.actions}. Expected an array of rules.`,
         );
       }
       // Iterate over every resource.
@@ -79,10 +78,11 @@ class Policy {
     }
 
     if (props.context) {
+      // TODO: Allow single-valued context.
       if (props.context.constructor !== Object) {
         throw new Error(
           `Invalid context: ${props.context}. Expected a map of keys and ` +
-            `modifiers.`,
+            `rules.`,
         );
       }
       // Validate the context.
@@ -93,6 +93,7 @@ class Policy {
     for (const k of Object.keys(props)) {
       if (
         [
+          'actions',
           'subjects',
           'resources',
           'context',
@@ -103,18 +104,18 @@ class Policy {
       ) {
         throw new Error(
           `Invalid policy attribute: ${k}. Valid attributes include ` +
-            `"subjects", "resources", "context", "effect", "id", and ` +
-            `"description".`,
+            `"actions", "subjects", "resources", "context", "effect", "id", ` +
+            `and "description".`,
         );
       }
     }
   }
 
   static recursivelyValidateRule(rule) {
-    if (rule instanceof Modifier) return;
+    if (rule instanceof Rule) return;
     if (rule.constructor !== Object) {
       throw new Error(
-        `Invalid rule: ${rule}. Expected a key-value map or a single modifier.`,
+        `Invalid rule: ${rule}. Expected a key-value map or a single rule.`,
       );
     }
     for (const v of Object.values(rule)) {

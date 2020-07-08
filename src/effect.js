@@ -1,9 +1,11 @@
+'use strict';
+
 class Effect {
   constructor(allowed) {
     this._allowed = allowed;
   }
 
-  allowed() {
+  isAllowed() {
     return this._allowed;
   }
 }
