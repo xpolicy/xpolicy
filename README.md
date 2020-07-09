@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/aiyan/xpolicy/workflows/ci/badge.svg)](https://github.com/aiyan/xpolicy/actions?query=workflow%3Aci)
 [![Coverage Status](https://coveralls.io/repos/github/aiyan/xpolicy/badge.svg?branch=master&t=P6KFeX)](https://coveralls.io/github/aiyan/xpolicy?branch=master)
+[![Dependencies](https://david-dm.org/aiyan/xpolicy.svg)](https://www.npmjs.com/package/xpolicy)
 
 Fine-grained access control policy and enforcement for modern applications.
 

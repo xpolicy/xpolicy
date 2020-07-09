@@ -1,7 +1,7 @@
 {
   "name": "xpolicy",
-  "version": "0.2.0",
-  "description": "Attribute-based access control for Javascript applications",
+  "version": "0.2.1",
+  "description": "Fine-grained access control policy and enforcement for modern applications",
   "license": "MIT",
   "main": "src/index.js",
   "repository": "github:aiyan/xpolicy",
