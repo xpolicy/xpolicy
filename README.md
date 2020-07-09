@@ -6,7 +6,7 @@
 Fine-grained access control policy and enforcement for modern applications.
 
 XPolicy implements the flexible attribute-based access control model, which
-_encompasses_ almost all access control paradigm. The wide range of rules allows
+_encompasses_ most access control paradigms. The wide range of rules allows
 you to define and enforce extremely specific policies.
 
 # Quick start
