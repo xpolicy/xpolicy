@@ -41,14 +41,12 @@ const policy = new xp.Policy({
   description: `Allow users and creators to view, like, and comment
     on public videos if their account age is between 0 and 365`,
   effect: xp.Allow,
-  subjects: [
-    {
-      username: Any(),
-      role: In(['user', 'creator']),
-    },
-  ],
-  actions: [Eq('view'), Eq('like'), Eq('comment')],
-  resources: [StartsWith('videos/public')],
+  subject: {
+    username: Any(),
+    role: In(['user', 'creator']),
+  },
+  action: In(['view', 'like', 'comment']),
+  resource: StartsWith('videos/public'),
   context: {
     accountAge: And(GreaterOrEq(0), Less(365)),
   },
@@ -79,13 +77,13 @@ multiple policies to be enforced.
 
 It contains the following attributes:
 
-| Attribute   | Description                                                                            |
-| ----------- | -------------------------------------------------------------------------------------- |
-| `subjects`  | An array of allowed entities.                                                          |
-| `actions`   | An array of allowed actions.                                                           |
-| `resources` | An array of allowed resources.                                                         |
-| `context`   | An object with property names and rules.                                               |
-| `effect`    | The result if the conditions are met. Can either be `effects.Allow` or `effects.Deny`. |
+| Attribute  | Description                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| `subject`  | The allowed entity. Can either be a rule or object.                                       |
+| `action`   | The allowed action. Can either be a rule or object.                                       |
+| `resource` | The allowed resource. Can either be a rule or object.                                     |
+| `context`  | The allowed context. Can either be a rule or object.                                      |
+| `effect`   | The result if the conditions are met.<br>Can either be `effects.Allow` or `effects.Deny`. |
 
 # Enforcer
 
@@ -135,8 +133,8 @@ Note that all the properties are _optional_. However, if the policy contains a
 property, the corresponding property _must_ be present on the operation, or else
 it will be rejected.
 
-For example, if the policy contains `subjects`, then the operation must contain
-`subject`, or else it is automatically rejected.
+For example, if the policy contains `subject`, then the operation must also
+contain `subject`, or else it is automatically rejected.
 
 # Rule
 
@@ -148,17 +146,15 @@ Rules can be applied directly or within an object:
 
 ```javascript
 // The subject itself has to equal "admin".
-subjects: [Eq('admin')];
+subject: Eq('admin');
 ```
 
 ```javascript
 // The subject has to be an object with a "role" attribute
 // that equals "admin".
-subjects: [
-  {
-    role: Eq('admin'),
-  },
-];
+subject: {
+  role: Eq('admin');
+}
 ```
 
 Both are valid syntaxes and are be enforced accordingly. The choice depends on
