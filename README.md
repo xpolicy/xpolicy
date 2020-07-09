@@ -52,6 +52,49 @@ console.log(enforcer.isAllowed(operation));
 // true
 ```
 
+# Policy
+
+A **policy** is a set of rules that you want to enforce. You can create
+and add multiple policies to be enforced.
+
+It contains the following attributes:
+
+|Attribute|Description|
+|-----|-----|
+|`subjects`|An array of allowed entities.|
+|`actions`|An array of allowed actions.|
+|`resources`|An array of allowed resources.|
+|`context`|An object with property names and rules.|
+|`effect`|The result if the conditions are met. Can either be `effects.Allow` or `effects.Deny`.
+
+# Operation
+
+An **operation** is an attempted activity that needs to be authorized
+by the rules defined by one or more policies.
+
+To do this, you construct a new `Operation` object and check it by
+calling `enforcer.isAllowed(operation)`. The enforcer will return a
+boolean value dictating whether the given operation is allowed
+according to the policies.
+
+Here is an example operation:
+
+```javascript
+const operation = new xp.Operation({
+  subject: 'user0',
+  action: 'view',
+  resource: 'video',
+  context: { location: 'USA' },
+});
+```
+
+Note that all the properties are *optional*. However, if the policy
+contains a property, the corresponding property *must* be present on
+the operation, or else it will be rejected.
+
+For example, if the policy contains `subjects`, then the operation
+must contain `subject`, or else it is automatically rejected.
+
 # Rules
 
 Rules allow you to impose conditions on the attributes of a desired
@@ -62,15 +105,15 @@ Rules can be applied directly or within an object:
 
 ```javascript
 // The subject itself has to equal "admin".
-subject: Eq("admin")
+subjects: [Eq("admin")]
 ```
 
 ```javascript
 // The subject has to be an object with a "role" attribute
 // that equals "admin".
-subject: {
+subjects: [{
   role: Eq("admin")
-}
+}]
 ```
 
 Both are valid syntax and will be enforced accordingly. The choice
