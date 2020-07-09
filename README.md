@@ -87,6 +87,24 @@ It contains the following attributes:
 | `context`     | _Optional:_ The allowed context. Can either be a rule or object.                                      |
 | `effect`      | _Required:_ The result if the conditions are met.<br>Can either be `effects.Allow` or `effects.Deny`. |
 
+Here is an example policy:
+
+```javascript
+const policy = new xp.Policy({
+  id: 1,
+  description: `Allow an admin to create, read, update, and delete
+    any resource except for permissions if their IP is 0.0.0.0.`,
+  subject: Eq('admin'),
+  action: In('create', 'read', 'update', 'delete'),
+  resource: And(Any(), NotEq('permissions')),
+  context: { ip: Eq('0.0.0.0') },
+  effect: xp.effects.Allow,
+});
+```
+
+See the [rule](#rule) section for more information about composing complex
+rules.
+
 # Enforcer
 
 An **enforcer** enforces the given policies by deciding whether a desired
@@ -164,6 +182,8 @@ your use case and desired fidelity of control.
 
 ## Constant rules
 
+Constant rules always result in the same outcome.
+
 | Rule     | Description           | Valid Example                 |
 | -------- | --------------------- | ----------------------------- |
 | `Any()`  | Always allow any data | `"cats"` ⟶ `Any()`            |
@@ -171,7 +191,20 @@ your use case and desired fidelity of control.
 
 \* Note that `None()` does not have much practical use.
 
+## Composition rules
+
+Composition rules allow you to combine and modify other rules to form more
+complex rules.
+
+| Rule        | Description                     |
+| ----------- | ------------------------------- |
+| `And(a, b)` | Both `a` and `b` must be true.  |
+| `Or(a, b)`  | Either `a` or `b` must be true. |
+| `Not(a)`    | `a` must not be true.           |
+
 ## Relational rules
+
+Relational rules allow you to compare pieces of data.
 
 | Rule             | Description                                          | Valid Example              |
 | ---------------- | ---------------------------------------------------- | -------------------------- |
@@ -184,6 +217,8 @@ your use case and desired fidelity of control.
 
 ## Array rules
 
+Array rules allow you to compare arrays with elements and arrays with arrays.
+
 | Rule       | Description                                      | Valid Example                          |
 | ---------- | ------------------------------------------------ | -------------------------------------- |
 | `In(a)`    | Must be an element of array `a`                  | `"zz"` ⟶ `In(["yy", "zz"])`            |
@@ -191,6 +226,8 @@ your use case and desired fidelity of control.
 | `AllIn(a)` | All input elements must be elements of array `a` | `["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])` |
 
 ## String rules
+
+String rules allow you to match a subset of a string with another string.
 
 | Rule            | Description                   | Valid Example                 |
 | --------------- | ----------------------------- | ----------------------------- |

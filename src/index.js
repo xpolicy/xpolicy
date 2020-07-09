@@ -9,7 +9,6 @@ module.exports = {
   Enforcer,
   Operation,
   Policy,
-  Allow: builtin.effects.Allow,
-  Deny: builtin.effects.Deny,
+  effects: builtin.effects,
   rules: builtin.rules,
 };

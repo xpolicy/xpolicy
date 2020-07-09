@@ -1,6 +1,7 @@
 'use strict';
 
 const xp = require('../src');
+const { effects } = xp;
 const { Eq, In, Any, StartsWith } = xp.rules;
 
 describe('xpolicy', () => {
@@ -18,7 +19,7 @@ describe('xpolicy', () => {
       context: {
         ip: StartsWith('12'),
       },
-      effect: xp.Allow,
+      effect: effects.Allow,
     });
 
     const enforcer = new xp.Enforcer();
