@@ -51,3 +51,63 @@ const operation = new xp.Operation({
 console.log(enforcer.isAllowed(operation));
 // true
 ```
+
+# Rules
+
+Rules allow you to impose conditions on the attributes of a desired
+operation. You can use rules on the `subject`, `action`, `resource`,
+and `context` of an operation.
+
+Rules can be applied directly or within an object:
+
+```javascript
+// The subject itself has to equal "admin".
+subject: Eq("admin")
+```
+
+```javascript
+// The subject has to be an object with a "role" attribute
+// that equals "admin".
+subject: {
+  role: Eq("admin")
+}
+```
+
+Both are valid syntax and will be enforced accordingly. The choice
+depends on your use case.
+
+## Constant rules
+
+|Rule|Description|Valid Example|
+|-----|-----|-----|
+|`Any()`|Always allow any data|`"cats"` ⟶ `Any()`|
+|`None()`|Always deny any data|Nothing will satisfy `None()`|
+
+\* Note that `None()` does not have much practical use.
+
+## Relational rules
+
+|Rule|Description|Valid Example|
+|-----|-----|-----|
+|`Eq(d)`|Must strictly equal `d`|`202` ⟶ `Eq(202)`|
+|`NotEq(d)`|Must strictly not equal `d`|`200` ⟶ `NotEq(300)`|
+|`Greater(n)`|Must be a number and be greater than `n`|`201` ⟶ `Greater(200)`|
+|`Less(n)`|Must be a number and be less than `n`|`200` ⟶ `Less(201)`|
+|`GreaterOrEq(n)`|Must be a number and be greater than or equal to `n`|`200` ⟶ `GreaterOrEq(200)`|
+|`LessOrEq(n)`|Must be a number and be less than or equal to `n`|`200` ⟶ `LessOrEq(200)`|
+
+## Array rules
+
+|Rule|Description|Valid Example|
+|-----|-----|-----|
+|`In(a)`|Must be an element of array `a`|`"zz"` ⟶ `In(["yy", "zz"])`|
+|`NotIn(a)`|Must not be an element of array `a`|`"ww"` ⟶ `NotIn(["yy", "zz"])`|
+|`AllIn(a)`|All input elements must be elements of array `a`|`["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])`|
+
+## String rules
+
+|Rule|Description|Valid Example|
+|-----|-----|-----|
+|`StartsWith(s)`|Must start with the value `s`|`"yolo"` ⟶ `StartsWith("yo")`|
+|`EndsWith(s)`|Must end with the value `s`|`"yolo"` ⟶ `EndsWith("lo")`|
+|`Contains(s)`|Must contain the value `s`|`"yolo"` ⟶ `Contains("ol")`|
