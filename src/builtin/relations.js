@@ -1,6 +1,7 @@
 'use strict';
 
 const Rule = require('../rule');
+const Enforcer = require('../enforcer');
 const types = require('../type');
 
 module.exports = {
@@ -48,9 +49,26 @@ module.exports = {
   },
   In: array => {
     types.checkAndErr.Array(array);
+
+    const validator = test => {
+      for (const rule of array) {
+        if (rule instanceof Rule) {
+          const valid = rule.validate(test);
+          if (valid) return true;
+        } else if (rule.constructor === Object) {
+          const valid = Enforcer.recursivelyValidate(rule, test);
+          if (valid) return true;
+        } else {
+          if (test === rule) return true;
+        }
+      }
+
+      return false;
+    };
+
     return new Rule({
       name: 'in array',
-      validator: ele => array.indexOf(ele) !== -1,
+      validator,
     });
   },
   NotIn: array => {

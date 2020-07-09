@@ -7,10 +7,23 @@ class Operation {
    * @param props {any}
    */
   constructor(props) {
-    this.subject = props.subject;
-    this.action = props.action;
-    this.resource = props.resource;
-    this.context = props.context;
+    Operation.validateProps(props);
+    this._data = props;
+  }
+
+  getData() {
+    return this._data;
+  }
+
+  static validateProps(props) {
+    for (const k of Object.keys(props)) {
+      if (['subject', 'action', 'resource', 'context'].indexOf(k) === -1) {
+        throw new Error(
+          `Invalid operation property: ${k}. Valid properties include ` +
+            `"subject", "action", "resource", and "context".`,
+        );
+      }
+    }
   }
 }
 

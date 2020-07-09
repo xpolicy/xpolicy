@@ -6,8 +6,20 @@
 Fine-grained access control policy and enforcement for modern applications.
 
 XPolicy implements the flexible attribute-based access control model, which
-_encompasses_ most access control paradigms. The wide range of rules allows
-you to define and enforce extremely specific policies.
+_encompasses_ most access control paradigms. The wide range of rules allows you
+to define and enforce extremely specific policies.
+
+## Table of Contents
+
+- [Quick start](#quick-start)
+- [Policy](#policy)
+- [Enforcer](#enforcer)
+- [Operation](#operation)
+- [Rule](#rule)
+  - [Constant rules](#constant-rules)
+  - [Relational rules](#relational-rules)
+  - [Array rules](#array-rules)
+  - [String rules](#string-rules)
 
 # Quick start
 
@@ -75,6 +87,30 @@ It contains the following attributes:
 | `context`   | An object with property names and rules.                                               |
 | `effect`    | The result if the conditions are met. Can either be `effects.Allow` or `effects.Deny`. |
 
+# Enforcer
+
+An **enforcer** enforces the given policies by deciding whether a desired
+activity adheres to the policies. Enforcer exposes two methods:
+
+`enforcer.addPolicy(yourPolicy)`
+
+- Adds a `Policy` object to the enforcer. When later authorizing an operation,
+
+`enforcer.isAllowed(yourOperation)`
+
+- Returns a boolean of whether the `Operation` object is allowed based on the
+  enforced policies.
+
+Here is an example usage of enforcer:
+
+```javascript
+const enforcer = new xp.Enforcer();
+enforcer.addPolicy(yourPolicy);
+enforcer.addPolicy(anotherPolicy);
+
+enforcer.isAllowed(attemptedOperation);
+```
+
 # Operation
 
 An **operation** is an attempted activity that needs to be authorized by the
@@ -102,9 +138,9 @@ it will be rejected.
 For example, if the policy contains `subjects`, then the operation must contain
 `subject`, or else it is automatically rejected.
 
-# Rules
+# Rule
 
-Rules allow you to impose conditions on the attributes of a desired operation.
+A rule allows you to impose conditions on the attributes of a desired operation.
 You can use rules on the `subject`, `action`, `resource`, and `context` of an
 operation.
 

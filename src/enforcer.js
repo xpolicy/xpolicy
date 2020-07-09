@@ -20,7 +20,7 @@ class Enforcer {
   addPolicy(policy) {
     Enforcer.validatePolicy(policy);
 
-    // TODO: Check duplicate ids
+    // TODO: Check duplicate ids.
     this.policies.push(policy);
   }
 
@@ -32,12 +32,15 @@ class Enforcer {
    * @returns {boolean} whether the operation is allowed.
    */
   isAllowed(operation) {
-    for (const p of this.policies) {
+    const policies = this.policies.filter(p => p.matches(operation));
+
+    for (const p of policies) {
       const effect = p.effect.isAllowed();
       if (Enforcer.checkPolicy(operation, p)) {
         return effect;
       }
     }
+
     return false;
   }
 
@@ -55,86 +58,61 @@ class Enforcer {
       );
     }
 
-    const arrayProps = ['action', 'subject', 'resource'];
+    const policyData = policy.getRules();
+    const opData = operation.getData();
+    const arrayProps = ['action', 'subject', 'resource', 'context'];
 
     for (const prop of arrayProps) {
-      const policyRules = policy[`${prop}s`];
-      if (!policyRules) continue;
+      if (!policyData[prop]) continue;
 
-      const valid = Enforcer.validateOneInArray(policyRules, operation[prop]);
+      const valid = Enforcer.recursivelyValidate(
+        policyData[prop],
+        opData[prop],
+      );
       if (!valid) return false;
-    }
-
-    if (policy.context) {
-      try {
-        Enforcer.recursivelyValidateParallel(policy.context, operation.context);
-      } catch (e) {
-        return false;
-      }
     }
 
     return true;
   }
 
   /**
-   * Checks if the operation data is allowed by at least one of the rules in the
-   * array.
-   *
-   * @param array {Rule[]} The array of rules.
-   * @param opData {any} The operation data.
-   * @returns {boolean} whether the operation data is allowed.
-   */
-  static validateOneInArray(array, opData) {
-    for (const rule of array) {
-      try {
-        Enforcer.recursivelyValidateParallel(rule, opData);
-        // Subject validation passes if at least one subject matches.
-        return true;
-      } catch (e) {}
-    }
-    return false;
-  }
-
-  /**
    * Recursively validates the properties of the operation data according to the
    * properties of the rule.
    *
-   * An error with a reason for the invalidation is thrown if validation fails.
-   *
    * @param rule The rule to enforce.
    * @param opData The operation data to check.
-   * @returns {void}
+   * @returns {boolean} whether the operation data matches the rule.
    */
-  static recursivelyValidateParallel(rule, opData) {
-    if (!rule) {
-      throw new Error(
-        'Recursive parallel validation requires a rule to enforce.',
-      );
+  static recursivelyValidate(rule, opData) {
+    if (!rule || opData === undefined || opData === null) {
+      return false;
     }
-    if (!opData) {
-      throw new Error(
-        'Recursive parallel validation requires operation data to check.',
-      );
-    }
+    // Execute the rule if one is reached.
     if (rule instanceof Rule) {
-      const valid = rule.validate(opData);
-      if (!valid) {
-        throw new Error('Rule validation failed.');
-      }
+      return rule.validate(opData);
     }
+    // Descend into each object's properties.
     if (opData.constructor === Object && rule.constructor === Object) {
+      // Make sure the number of keys of each object match.
       if (Object.keys(opData).length !== Object.keys(rule).length) {
-        throw new Error('Mismatched number of attributes.');
+        return false;
       }
+      // Make sure the objects have the same keys.
       if (
         !Object.keys(opData).every(k => Object.keys(rule).indexOf(k) !== -1)
       ) {
-        throw new Error('Attribute names do not match.');
+        return false;
       }
+      // Descend into the keys.
       for (const k of Object.keys(opData)) {
-        Enforcer.recursivelyValidateParallel(rule[k], opData[k]);
+        const valid = Enforcer.recursivelyValidate(rule[k], opData[k]);
+        if (!valid) return false;
       }
+      // Validation has passed, return true.
+      return true;
     }
+    // Unexpected structure, return false.
+    return false;
   }
 
   /**

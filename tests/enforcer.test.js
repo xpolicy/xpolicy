@@ -49,12 +49,24 @@ describe('isAllowed', () => {
     Enforcer.checkPolicy = jest.fn(() => false);
 
     const enforcer = new Enforcer();
-    const policy1 = { id: 1, effect: { isAllowed: () => true } };
-    const policy2 = { id: 2, effect: { isAllowed: () => true } };
-    const policy3 = { id: 3, effect: { isAllowed: () => true } };
+    const policy1 = new Policy({
+      id: 1,
+      effect: effects.Allow,
+      context: Eq('cat'),
+    });
+    const policy2 = new Policy({
+      id: 2,
+      effect: effects.Allow,
+      context: Eq('cat'),
+    });
+    const policy3 = new Policy({
+      id: 3,
+      effect: effects.Allow,
+      context: Eq('cat'),
+    });
     enforcer.policies = [policy1, policy2, policy3];
 
-    const operation = {};
+    const operation = new Operation({ context: 'cat' });
     expect(enforcer.isAllowed(operation)).toBe(false);
 
     expect(Enforcer.checkPolicy).toHaveBeenCalledTimes(3);
@@ -82,30 +94,27 @@ describe('checkPolicy', () => {
     const validateProps = Enforcer.validatePolicy;
     Enforcer.validatePolicy = jest.fn();
 
-    const validateOneInArray = Enforcer.validateOneInArray;
-    const recursivelyValidateParallel = Enforcer.recursivelyValidateParallel;
+    const recursivelyValidate = Enforcer.recursivelyValidate;
 
-    Enforcer.validateOneInArray = jest.fn(() => true);
-    Enforcer.recursivelyValidateParallel = jest.fn();
+    Enforcer.recursivelyValidate = jest.fn(() => true);
 
-    const actions = {};
-    const subjects = {};
-    const resources = {};
-    const context = {};
-    const policy = {
-      actions,
-      subjects,
-      resources,
+    const action = Eq(1);
+    const subject = Eq(2);
+    const resource = Eq(3);
+    const context = Eq(4);
+    const policy = new Policy({
+      id: 1,
+      action,
+      subject,
+      resource,
       context,
-      effect: {
-        isAllowed: jest.fn(() => true),
-      },
-    };
+      effect: effects.Allow,
+    });
 
-    const opAction = {};
-    const opSubject = {};
-    const opResource = {};
-    const opContext = {};
+    const opAction = 1;
+    const opSubject = 2;
+    const opResource = 3;
+    const opContext = 4;
     const operation = new Operation({
       action: opAction,
       subject: opSubject,
@@ -114,37 +123,35 @@ describe('checkPolicy', () => {
     });
     expect(Enforcer.checkPolicy(operation, policy)).toBe(true);
 
-    expect(Enforcer.validateOneInArray).toHaveBeenCalledTimes(3);
-    expect(Enforcer.validateOneInArray).toHaveBeenCalledWith(actions, opAction);
-    expect(Enforcer.validateOneInArray).toHaveBeenCalledWith(
-      subjects,
+    expect(Enforcer.recursivelyValidate).toHaveBeenCalledTimes(4);
+    expect(Enforcer.recursivelyValidate).toHaveBeenCalledWith(action, opAction);
+    expect(Enforcer.recursivelyValidate).toHaveBeenCalledWith(
+      subject,
       opSubject,
     );
-    expect(Enforcer.validateOneInArray).toHaveBeenCalledWith(
-      resources,
+    expect(Enforcer.recursivelyValidate).toHaveBeenCalledWith(
+      resource,
       opResource,
     );
-    expect(Enforcer.recursivelyValidateParallel).toHaveBeenCalledTimes(1);
-    expect(Enforcer.recursivelyValidateParallel).toHaveBeenCalledWith(
+    expect(Enforcer.recursivelyValidate).toHaveBeenCalledWith(
       context,
       opContext,
     );
 
     // Restore the original validateProps method.
     Enforcer.validatePolicy = validateProps;
-    Enforcer.recursivelyValidateParallel = recursivelyValidateParallel;
-    Enforcer.validateOneInArray = validateOneInArray;
+    Enforcer.recursivelyValidate = recursivelyValidate;
   });
 
   describe('returns false if a property does not match', () => {
     const testTable = [
       [
         new Operation({
-          actions: 'stop',
+          action: 'stop',
         }),
         new Policy({
           id: 1,
-          actions: [Eq('go')],
+          action: Eq('go'),
           effect: effects.Allow,
         }),
       ],
@@ -154,7 +161,7 @@ describe('checkPolicy', () => {
         }),
         new Policy({
           id: 1,
-          subjects: [Eq('sign')],
+          subject: Eq('sign'),
           effect: effects.Allow,
         }),
       ],
@@ -164,7 +171,7 @@ describe('checkPolicy', () => {
         }),
         new Policy({
           id: 1,
-          resources: [Eq('sign')],
+          resource: Eq('sign'),
           effect: effects.Allow,
         }),
       ],
@@ -199,7 +206,7 @@ describe('checkPolicy', () => {
 });
 
 describe('recursivelyValidateParallel', () => {
-  describe('validates without an error', () => {
+  describe('returns true', () => {
     const testTable = [
       [Eq('foo'), 'foo'],
       [Eq(1), 1],
@@ -228,35 +235,22 @@ describe('recursivelyValidateParallel', () => {
     test.each(testTable)(
       'when the rule and operation data are %j and %j',
       (rule, opData) => {
-        try {
-          Enforcer.recursivelyValidateParallel(rule, opData);
-          expect(true).toBe(true);
-        } catch (e) {
-          expect(e).toBeUndefined();
-        }
+        const valid = Enforcer.recursivelyValidate(rule, opData);
+        expect(valid).toBe(true);
       },
     );
   });
 
-  describe('validates with an error', () => {
+  describe('returns false', () => {
     const testTable = [
-      [
-        undefined,
-        'foo',
-        'Recursive parallel validation requires a rule to enforce.',
-      ],
-      [
-        Eq('bar'),
-        undefined,
-        'Recursive parallel validation requires operation data to check.',
-      ],
+      [undefined, 'foo'],
+      [Eq('bar'), undefined],
       [Eq('bar'), 'foo', 'Rule validation failed.'],
       [
         Eq('bar'),
         {
           foo: 'bar',
         },
-        'Rule validation failed.',
       ],
       [
         {
@@ -266,7 +260,6 @@ describe('recursivelyValidateParallel', () => {
           foo: 'bar',
           bar: 'foo',
         },
-        'Mismatched number of attributes.',
       ],
       [
         {
@@ -277,19 +270,22 @@ describe('recursivelyValidateParallel', () => {
           foo: 'bar',
           bar: 'foo',
         },
-        'Attribute names do not match.',
+      ],
+      [
+        {
+          foo: { bar: Eq(1) },
+        },
+        {
+          foo: 1,
+        },
       ],
     ];
 
     test.each(testTable)(
       'when the rule and operation data are %j and %j',
-      (rule, opData, msg) => {
-        try {
-          Enforcer.recursivelyValidateParallel(rule, opData);
-          expect(true).toBe(false);
-        } catch (e) {
-          expect(e.message).toEqual(msg);
-        }
+      (rule, opData) => {
+        const valid = Enforcer.recursivelyValidate(rule, opData);
+        expect(valid).toBe(false);
       },
     );
   });

@@ -14,11 +14,58 @@ class Policy {
 
     this.id = props.id;
     this.description = props.description || '';
-    this.subjects = props.subjects;
-    this.resources = props.resources;
-    this.actions = props.actions;
-    this.context = props.context;
     this.effect = props.effect;
+
+    this._rules = {};
+    if (props.subject) {
+      this._rules.subject = props.subject;
+    }
+    if (props.action) {
+      this._rules.action = props.action;
+    }
+    if (props.resource) {
+      this._rules.resource = props.resource;
+    }
+    if (props.context) {
+      this._rules.context = props.context;
+    }
+  }
+
+  getRules() {
+    return this._rules;
+  }
+
+  /**
+   * Checks whether the given operation structure matches that of the policy.
+   *
+   * @param operation {Operation} The operation to check.
+   * @returns {boolean}
+   */
+  matches(operation) {
+    return Policy.recursivelyMatch(this._rules, operation.getData());
+  }
+
+  /**
+   * Checks whether the given rule structure matches that of the operation.
+   *
+   * @param rule {Rule} The rule data to check.
+   * @param opData {Object} The operation data to check.
+   * @returns {boolean} whether the structure matches.
+   */
+  static recursivelyMatch(rule, opData) {
+    if (!rule || opData === undefined || opData === null) {
+      return false;
+    }
+    if (rule instanceof Rule) {
+      return true;
+    }
+
+    for (const k of Object.keys(rule)) {
+      const matches = Policy.recursivelyMatch(rule[k], opData[k]);
+      if (!matches) return false;
+    }
+
+    return true;
   }
 
   /**
@@ -51,53 +98,19 @@ class Policy {
       );
     }
 
-    if (props.subjects) {
-      if (!Array.isArray(props.subjects)) {
-        throw new Error(
-          `Invalid subjects: ${props.subjects}. Expected an array of ` +
-            `rules.`,
-        );
-      }
-      // Iterate over every subject.
-      for (const subject of props.subjects) {
-        Policy.recursivelyValidateRule(subject);
-      }
+    if (props.subject !== undefined) {
+      Policy.recursivelyValidateRule(props.subject);
     }
 
-    if (props.resources) {
-      if (!Array.isArray(props.resources)) {
-        throw new Error(
-          `Invalid resources: ${props.resources}. Expected an array of ` +
-            `rules.`,
-        );
-      }
-      // Iterate over every resource.
-      for (const resource of props.resources) {
-        Policy.recursivelyValidateRule(resource);
-      }
+    if (props.resource !== undefined) {
+      Policy.recursivelyValidateRule(props.resource);
     }
 
-    if (props.actions) {
-      if (!Array.isArray(props.actions)) {
-        throw new Error(
-          `Invalid actions: ${props.actions}. Expected an array of rules.`,
-        );
-      }
-      // Iterate over every resource.
-      for (const action of props.actions) {
-        Policy.recursivelyValidateRule(action);
-      }
+    if (props.action !== undefined) {
+      Policy.recursivelyValidateRule(props.action);
     }
 
-    if (props.context) {
-      // TODO: Allow single-valued context.
-      if (props.context.constructor !== Object) {
-        throw new Error(
-          `Invalid context: ${props.context}. Expected a map of keys and ` +
-            `rules.`,
-        );
-      }
-      // Validate the context.
+    if (props.context !== undefined) {
       Policy.recursivelyValidateRule(props.context);
     }
 
@@ -105,9 +118,9 @@ class Policy {
     for (const k of Object.keys(props)) {
       if (
         [
-          'actions',
-          'subjects',
-          'resources',
+          'action',
+          'subject',
+          'resource',
           'context',
           'effect',
           'id',
@@ -115,8 +128,8 @@ class Policy {
         ].indexOf(k) === -1
       ) {
         throw new Error(
-          `Invalid policy attribute: ${k}. Valid attributes include ` +
-            `"actions", "subjects", "resources", "context", "effect", "id", ` +
+          `Invalid policy property: ${k}. Valid properties include ` +
+            `"action", "subject", "resource", "context", "effect", "id", ` +
             `and "description".`,
         );
       }

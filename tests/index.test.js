@@ -1,20 +1,20 @@
 'use strict';
 
 const xp = require('../src');
-const { Eq, Any, StartsWith } = xp.rules;
+const { Eq, In, Any, StartsWith } = xp.rules;
 
 describe('xpolicy', () => {
   it('correctly enforces a policy', () => {
     const policy = new xp.Policy({
       id: 1,
-      actions: [Any()],
-      subjects: [
+      action: In([Any()]),
+      subject: In([
         Eq('contact_tracer'),
         {
           role: Eq('admin'),
         },
-      ],
-      resources: [Eq('control_panel')],
+      ]),
+      resource: In([Eq('control_panel')]),
       context: {
         ip: StartsWith('12'),
       },

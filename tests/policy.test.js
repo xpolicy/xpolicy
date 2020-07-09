@@ -2,6 +2,7 @@
 
 const { effects } = require('../src/builtin');
 const Policy = require('../src/policy');
+const Rule = require('../src/rule');
 
 describe('constructor', () => {
   it('validates the props', () => {
@@ -16,6 +17,28 @@ describe('constructor', () => {
     expect(Policy.validateProps).toHaveBeenCalledWith(props);
 
     Policy.validateProps = validateProps;
+  });
+});
+
+describe('recursivelyMatch', () => {
+  describe('matches the rule and operation data', () => {
+    const mockRule = new Rule({ validator: () => true });
+
+    const testTable = [
+      [mockRule, 1, true],
+      [mockRule, null, false],
+      [mockRule, {}, true],
+      [{ a: mockRule }, {}, false],
+      [{ a: mockRule }, { a: null }, false],
+      [{ a: mockRule }, { a: { b: 1 } }, true],
+      [{ a: mockRule }, { a: 1 }, true],
+      [{ a: { b: mockRule } }, { a: {} }, false],
+      [{ a: { b: mockRule } }, { a: { b: '' } }, true],
+    ];
+
+    test.each(testTable)('when the test case is %#', (rule, opData, result) => {
+      expect(Policy.recursivelyMatch(rule, opData)).toBe(result);
+    });
   });
 });
 
@@ -39,46 +62,17 @@ describe('validateProps', () => {
         'Invalid effect: true. Valid effects are ALLOW and DENY.',
       ],
       [
-        { id: 1, effect: effects.Allow, subjects: 'flag' },
-        'Invalid subjects: flag. Expected an array of rules.',
-      ],
-      [
-        { id: 1, effect: effects.Allow, subjects: ['flag'], resources: 'foo' },
-        'Invalid resources: foo. Expected an array of rules.',
-      ],
-      [
         {
           id: 1,
           effect: effects.Allow,
-          subjects: ['flag'],
-          resources: ['foo'],
-          actions: 'bar',
-        },
-        'Invalid actions: bar. Expected an array of rules.',
-      ],
-      [
-        {
-          id: 1,
-          effect: effects.Allow,
-          subjects: ['flag'],
-          resources: ['foo'],
-          actions: ['bar'],
-          context: 'nop',
-        },
-        'Invalid context: nop. Expected a map of keys and rules.',
-      ],
-      [
-        {
-          id: 1,
-          effect: effects.Allow,
-          subjects: ['flag'],
-          resources: ['foo'],
-          actions: ['bar'],
+          subject: ['flag'],
+          resource: ['foo'],
+          action: ['bar'],
           context: { a: 'b' },
           neg: 'bop',
         },
-        'Invalid policy attribute: neg. Valid attributes include "actions", ' +
-          '"subjects", "resources", "context", "effect", "id", and ' +
+        'Invalid policy property: neg. Valid properties include "action", ' +
+          '"subject", "resource", "context", "effect", "id", and ' +
           '"description".',
       ],
     ];
