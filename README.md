@@ -3,6 +3,12 @@
 [![CI](https://github.com/aiyan/xpolicy/workflows/ci/badge.svg)](https://github.com/aiyan/xpolicy/actions?query=workflow%3Aci)
 [![Coverage Status](https://coveralls.io/repos/github/aiyan/xpolicy/badge.svg?branch=master&t=P6KFeX)](https://coveralls.io/github/aiyan/xpolicy?branch=master)
 
+Fine-grained access control policy and enforcement for modern applications.
+
+XPolicy implements the flexible attribute-based access control model, which
+_encompasses_ almost all access control paradigm. The wide range of rules allows
+you to define and enforce extremely specific policies.
+
 # Quick start
 
 ```shell script
@@ -23,10 +29,12 @@ const policy = new xp.Policy({
   description: `Allow users and creators to view, like, and comment
     on public videos if their account age is between 0 and 365`,
   effect: xp.Allow,
-  subjects: [{
-    username: Any(),
-    role: In(['user', 'creator']),
-  }],
+  subjects: [
+    {
+      username: Any(),
+      role: In(['user', 'creator']),
+    },
+  ],
   actions: [Eq('view'), Eq('like'), Eq('comment')],
   resources: [StartsWith('videos/public')],
   context: {
@@ -54,28 +62,27 @@ console.log(enforcer.isAllowed(operation));
 
 # Policy
 
-A **policy** is a set of rules that you want to enforce. You can create
-and add multiple policies to be enforced.
+A **policy** is a set of rules that you want to enforce. You can create and add
+multiple policies to be enforced.
 
 It contains the following attributes:
 
-|Attribute|Description|
-|-----|-----|
-|`subjects`|An array of allowed entities.|
-|`actions`|An array of allowed actions.|
-|`resources`|An array of allowed resources.|
-|`context`|An object with property names and rules.|
-|`effect`|The result if the conditions are met. Can either be `effects.Allow` or `effects.Deny`.
+| Attribute   | Description                                                                            |
+| ----------- | -------------------------------------------------------------------------------------- |
+| `subjects`  | An array of allowed entities.                                                          |
+| `actions`   | An array of allowed actions.                                                           |
+| `resources` | An array of allowed resources.                                                         |
+| `context`   | An object with property names and rules.                                               |
+| `effect`    | The result if the conditions are met. Can either be `effects.Allow` or `effects.Deny`. |
 
 # Operation
 
-An **operation** is an attempted activity that needs to be authorized
-by the rules defined by one or more policies.
+An **operation** is an attempted activity that needs to be authorized by the
+rules defined by one or more policies.
 
-To do this, you construct a new `Operation` object and check it by
-calling `enforcer.isAllowed(operation)`. The enforcer will return a
-boolean value dictating whether the given operation is allowed
-according to the policies.
+To do this, you construct a new `Operation` object and check it by calling
+`enforcer.isAllowed(operation)`. The enforcer will return a boolean value
+dictating whether the given operation is allowed according to the policies.
 
 Here is an example operation:
 
@@ -88,69 +95,71 @@ const operation = new xp.Operation({
 });
 ```
 
-Note that all the properties are *optional*. However, if the policy
-contains a property, the corresponding property *must* be present on
-the operation, or else it will be rejected.
+Note that all the properties are _optional_. However, if the policy contains a
+property, the corresponding property _must_ be present on the operation, or else
+it will be rejected.
 
-For example, if the policy contains `subjects`, then the operation
-must contain `subject`, or else it is automatically rejected.
+For example, if the policy contains `subjects`, then the operation must contain
+`subject`, or else it is automatically rejected.
 
 # Rules
 
-Rules allow you to impose conditions on the attributes of a desired
-operation. You can use rules on the `subject`, `action`, `resource`,
-and `context` of an operation.
+Rules allow you to impose conditions on the attributes of a desired operation.
+You can use rules on the `subject`, `action`, `resource`, and `context` of an
+operation.
 
 Rules can be applied directly or within an object:
 
 ```javascript
 // The subject itself has to equal "admin".
-subjects: [Eq("admin")]
+subjects: [Eq('admin')];
 ```
 
 ```javascript
 // The subject has to be an object with a "role" attribute
 // that equals "admin".
-subjects: [{
-  role: Eq("admin")
-}]
+subjects: [
+  {
+    role: Eq('admin'),
+  },
+];
 ```
 
-Both are valid syntax and will be enforced accordingly. The choice
-depends on your use case.
+Both are valid syntax and will be enforced accordingly. The choice depends on
+your use case.
 
 ## Constant rules
 
-|Rule|Description|Valid Example|
-|-----|-----|-----|
-|`Any()`|Always allow any data|`"cats"` ⟶ `Any()`|
-|`None()`|Always deny any data|Nothing will satisfy `None()`|
+| Rule     | Description           | Valid Example                 |
+| -------- | --------------------- | ----------------------------- |
+| `Any()`  | Always allow any data | `"cats"` ⟶ `Any()`            |
+| `None()` | Always deny any data  | Nothing will satisfy `None()` |
 
 \* Note that `None()` does not have much practical use.
 
 ## Relational rules
 
-|Rule|Description|Valid Example|
-|-----|-----|-----|
-|`Eq(d)`|Must strictly equal `d`|`202` ⟶ `Eq(202)`|
-|`NotEq(d)`|Must strictly not equal `d`|`200` ⟶ `NotEq(300)`|
-|`Greater(n)`|Must be a number and be greater than `n`|`201` ⟶ `Greater(200)`|
-|`Less(n)`|Must be a number and be less than `n`|`200` ⟶ `Less(201)`|
-|`GreaterOrEq(n)`|Must be a number and be greater than or equal to `n`|`200` ⟶ `GreaterOrEq(200)`|
-|`LessOrEq(n)`|Must be a number and be less than or equal to `n`|`200` ⟶ `LessOrEq(200)`|
+| Rule             | Description                                          | Valid Example              |
+| ---------------- | ---------------------------------------------------- | -------------------------- |
+| `Eq(d)`          | Must strictly equal `d`                              | `202` ⟶ `Eq(202)`          |
+| `NotEq(d)`       | Must strictly not equal `d`                          | `200` ⟶ `NotEq(300)`       |
+| `Greater(n)`     | Must be a number and be greater than `n`             | `201` ⟶ `Greater(200)`     |
+| `Less(n)`        | Must be a number and be less than `n`                | `200` ⟶ `Less(201)`        |
+| `GreaterOrEq(n)` | Must be a number and be greater than or equal to `n` | `200` ⟶ `GreaterOrEq(200)` |
+| `LessOrEq(n)`    | Must be a number and be less than or equal to `n`    | `200` ⟶ `LessOrEq(200)`    |
 
 ## Array rules
 
-|Rule|Description|Valid Example|
-|-----|-----|-----|
-|`In(a)`|Must be an element of array `a`|`"zz"` ⟶ `In(["yy", "zz"])`|
-|`NotIn(a)`|Must not be an element of array `a`|`"ww"` ⟶ `NotIn(["yy", "zz"])`|
-|`AllIn(a)`|All input elements must be elements of array `a`|`["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])`|
+| Rule       | Description                                      | Valid Example                          |
+| ---------- | ------------------------------------------------ | -------------------------------------- |
+| `In(a)`    | Must be an element of array `a`                  | `"zz"` ⟶ `In(["yy", "zz"])`            |
+| `NotIn(a)` | Must not be an element of array `a`              | `"ww"` ⟶ `NotIn(["yy", "zz"])`         |
+| `AllIn(a)` | All input elements must be elements of array `a` | `["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])` |
 
 ## String rules
 
-|Rule|Description|Valid Example|
-|-----|-----|-----|
-|`StartsWith(s)`|Must start with the value `s`|`"yolo"` ⟶ `StartsWith("yo")`|
-|`EndsWith(s)`|Must end with the value `s`|`"yolo"` ⟶ `EndsWith("lo")`|
-|`Contains(s)`|Must contain the value `s`|`"yolo"` ⟶ `Contains("ol")`|
+| Rule            | Description                   | Valid Example                 |
+| --------------- | ----------------------------- | ----------------------------- |
+| `StartsWith(s)` | Must start with the value `s` | `"yolo"` ⟶ `StartsWith("yo")` |
+| `EndsWith(s)`   | Must end with the value `s`   | `"yolo"` ⟶ `EndsWith("lo")`   |
+| `Contains(s)`   | Must contain the value `s`    | `"yolo"` ⟶ `Contains("ol")`   |
