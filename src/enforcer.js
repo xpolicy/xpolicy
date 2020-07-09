@@ -33,10 +33,10 @@ class Enforcer {
    */
   isAllowed(operation) {
     for (const p of this.policies) {
-      try {
-        Enforcer.checkPolicy(operation, p);
-        return true;
-      } catch (e) {}
+      const effect = p.effect.isAllowed();
+      if (Enforcer.checkPolicy(operation, p)) {
+        return effect;
+      }
     }
     return false;
   }
@@ -46,7 +46,7 @@ class Enforcer {
    *
    * @param operation {Operation} The attempted operation.
    * @param policy {Policy} The policy to enforce.
-   * @returns {boolean} whether the operation is allowed.
+   * @returns {boolean} whether the operation is matches the policy.
    */
   static checkPolicy(operation, policy) {
     if (!(operation instanceof Operation)) {
@@ -55,35 +55,25 @@ class Enforcer {
       );
     }
 
-    const effect = policy.effect.isAllowed();
+    const arrayProps = ['action', 'subject', 'resource'];
 
-    if (policy.actions) {
-      if (!Enforcer.validateOneInArray(policy.actions, operation.action)) {
-        return !effect;
-      }
-    }
+    for (const prop of arrayProps) {
+      const policyRules = policy[`${prop}s`];
+      if (!policyRules) continue;
 
-    if (policy.subjects) {
-      if (!Enforcer.validateOneInArray(policy.subjects, operation.subject)) {
-        return !effect;
-      }
-    }
-
-    if (policy.resources) {
-      if (!Enforcer.validateOneInArray(policy.resources, operation.resource)) {
-        return !effect;
-      }
+      const valid = Enforcer.validateOneInArray(policyRules, operation[prop]);
+      if (!valid) return false;
     }
 
     if (policy.context) {
       try {
         Enforcer.recursivelyValidateParallel(policy.context, operation.context);
       } catch (e) {
-        return !effect;
+        return false;
       }
     }
 
-    return effect;
+    return true;
   }
 
   /**

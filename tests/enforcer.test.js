@@ -46,14 +46,12 @@ describe('validateProps', () => {
 describe('isAllowed', () => {
   it('iterates over every policy', () => {
     const checkPolicy = Enforcer.checkPolicy;
-    Enforcer.checkPolicy = jest.fn(() => {
-      throw new Error('Policy check error.');
-    });
+    Enforcer.checkPolicy = jest.fn(() => false);
 
     const enforcer = new Enforcer();
-    const policy1 = { id: 1 };
-    const policy2 = { id: 2 };
-    const policy3 = { id: 3 };
+    const policy1 = { id: 1, effect: { isAllowed: () => true } };
+    const policy2 = { id: 2, effect: { isAllowed: () => true } };
+    const policy3 = { id: 3, effect: { isAllowed: () => true } };
     enforcer.policies = [policy1, policy2, policy3];
 
     const operation = {};
@@ -180,21 +178,23 @@ describe('checkPolicy', () => {
           effect: effects.Allow,
         }),
       ],
-      [
-        new Operation({}),
-        new Policy({
-          id: 1,
-          effect: effects.Deny,
-        }),
-      ],
     ];
 
     test.each(testTable)(
-      'when the operation and policy are %p and %p',
+      'when the operation and policy are from test %#',
       (operation, policy) => {
         expect(Enforcer.checkPolicy(operation, policy)).toBe(false);
       },
     );
+  });
+  it('returns true when the policy is empty', () => {
+    const policy = new Policy({
+      id: 1,
+      effect: effects.Allow,
+    });
+    const operation = new Operation({});
+
+    expect(Enforcer.checkPolicy(operation, policy)).toBe(true);
   });
 });
 
