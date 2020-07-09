@@ -125,8 +125,8 @@ subjects: [
 ];
 ```
 
-Both are valid syntax and will be enforced accordingly. The choice depends on
-your use case.
+Both are valid syntaxes and are be enforced accordingly. The choice depends on
+your use case and desired fidelity of control.
 
 ## Constant rules
 
