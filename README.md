@@ -1,8 +1,9 @@
 # XPolicy
 
 [![CI](https://github.com/aiyan/xpolicy/workflows/ci/badge.svg)](https://github.com/aiyan/xpolicy/actions?query=workflow%3Aci)
-[![Coverage Status](https://coveralls.io/repos/github/aiyan/xpolicy/badge.svg?branch=master&t=P6KFeX)](https://coveralls.io/github/aiyan/xpolicy?branch=master)
-[![Dependencies](https://david-dm.org/aiyan/xpolicy.svg)](https://www.npmjs.com/package/xpolicy)
+[![Coverage Status](https://img.shields.io/coveralls/github/aiyan/xpolicy)](https://coveralls.io/github/aiyan/xpolicy?branch=master)
+[![Dependencies](https://img.shields.io/david/aiyan/xpolicy)](https://www.npmjs.com/package/xpolicy)
+[![License](https://img.shields.io/npm/l/xpolicy)](https://github.com/aiyan/xpolicy/blob/master/LICENSE)
 
 Fine-grained access control policy and enforcement for modern applications.
 
