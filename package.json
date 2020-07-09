@@ -1,6 +1,6 @@
 {
   "name": "xpolicy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Attribute-based access control for Javascript applications",
   "license": "MIT",
   "main": "src/index.js",

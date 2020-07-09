@@ -33,14 +33,14 @@ yarn add xpolicy
 
 ```javascript
 const xp = require('xpolicy');
-const { GreaterOrEq, Less, In, Eq, StartsWith } = xp.rules;
+const { GreaterOrEq, Less, In, StartsWith } = xp.rules;
 
 // Define a policy to enforce.
 const policy = new xp.Policy({
   id: 1,
   description: `Allow users and creators to view, like, and comment
     on public videos if their account age is between 0 and 365`,
-  effect: xp.Allow,
+  effect: xp.effects.Allow,
   subject: {
     username: Any(),
     role: In(['user', 'creator']),
