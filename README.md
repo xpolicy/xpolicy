@@ -77,13 +77,15 @@ multiple policies to be enforced.
 
 It contains the following attributes:
 
-| Attribute  | Description                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| `subject`  | The allowed entity. Can either be a rule or object.                                       |
-| `action`   | The allowed action. Can either be a rule or object.                                       |
-| `resource` | The allowed resource. Can either be a rule or object.                                     |
-| `context`  | The allowed context. Can either be a rule or object.                                      |
-| `effect`   | The result if the conditions are met.<br>Can either be `effects.Allow` or `effects.Deny`. |
+| Attribute     | Description                                                                                           |
+| ------------- | ----------------------------------------------------------------------------------------------------- |
+| `id`          | _Required:_ A unique identifier of the policy.                                                        |
+| `description` | _Optional:_ A helpful description of the policy.                                                      |
+| `subject`     | _Optional:_ The allowed entity. Can either be a rule or object.                                       |
+| `action`      | _Optional:_ The allowed action. Can either be a rule or object.                                       |
+| `resource`    | _Optional:_ The allowed resource. Can either be a rule or object.                                     |
+| `context`     | _Optional:_ The allowed context. Can either be a rule or object.                                      |
+| `effect`      | _Required:_ The result if the conditions are met.<br>Can either be `effects.Allow` or `effects.Deny`. |
 
 # Enforcer
 
