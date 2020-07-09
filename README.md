@@ -15,7 +15,7 @@ to define and enforce extremely specific policies.
 - [Policy](#policy)
 - [Enforcer](#enforcer)
 - [Operation](#operation)
-- [Rule](#rule)
+- [Rules](#rules)
   - [Constant rules](#constant-rules)
   - [Relational rules](#relational-rules)
   - [Array rules](#array-rules)
@@ -102,7 +102,7 @@ const policy = new xp.Policy({
 });
 ```
 
-See the [rule](#rule) section for more information about composing complex
+See the [rules](#rules) section for more information about composing complex
 rules.
 
 # Enforcer
@@ -156,11 +156,23 @@ it will be rejected.
 For example, if the policy contains `subject`, then the operation must also
 contain `subject`, or else it is automatically rejected.
 
-# Rule
+# Rules
 
-A rule allows you to impose conditions on the attributes of a desired operation.
+Rules allow you to impose conditions on the attributes of a desired operation.
 You can use rules on the `subject`, `action`, `resource`, and `context` of an
 operation.
+
+The rules are exposed in the `xp.rules` object, which contains all of the below
+rules. For ease of use, you should destructure `xp.rules` and expose the rules
+you want to use:
+
+```javascript
+const { Any, Eq, In, Greater, Contains } = xp.rules;
+
+// Now you can call the function directly:
+Any();
+Greater(10);
+```
 
 Rules can be applied directly or within an object:
 
