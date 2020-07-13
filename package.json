@@ -1,11 +1,11 @@
 {
   "name": "xpolicy",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Fine-grained access control policy and enforcement for modern applications",
   "license": "MIT",
   "main": "src/index.js",
-  "repository": "github:aiyan/xpolicy",
-  "homepage": "https://github.com/aiyan/xpolicy#readme",
+  "repository": "github:xpolicy/xpolicy",
+  "homepage": "https://github.com/xpolicy/xpolicy#readme",
   "author": "Aiyan Jiang",
   "scripts": {
     "test": "jest",
