@@ -233,11 +233,25 @@ Relational rules allow you to compare pieces of data.
 
 Array rules allow you to compare arrays with elements and arrays with arrays.
 
-| Rule       | Description                                      | Valid Example                          |
-| ---------- | ------------------------------------------------ | -------------------------------------- |
-| `In(a)`    | Must be an element of array `a`                  | `"zz"` ⟶ `In(["yy", "zz"])`            |
-| `NotIn(a)` | Must not be an element of array `a`              | `"ww"` ⟶ `NotIn(["yy", "zz"])`         |
-| `AllIn(a)` | All input elements must be elements of array `a` | `["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])` |
+| Rule       | Description                                           | Valid Example                          |
+| ---------- | ----------------------------------------------------- | -------------------------------------- |
+| `In(a)`    | Must satisfy an element of array `a`                  | `"zz"` ⟶ `In(["yy", "zz"])`            |
+| `NotIn(a)` | Must not satisfy an element of array `a`              | `"ww"` ⟶ `NotIn(["yy", "zz"])`         |
+| `AllIn(a)` | All input elements must satisfy elements of array `a` | `["zz", "yy"]` ⟶ `AllIn(["yy", "zz"])` |
+
+These array rules can be _extremely powerful_—they not only compare literals to
+literals but also literals to rules:
+
+```javascript
+In([
+  'admin',
+  StartsWith('user'), // You can match a rule!
+  { firstName: NotEq('hacker') }, // You can match an object with a rule!
+]);
+```
+
+In the above `In` rule, all the following inputs would satisfy it: `admin`,
+`user123`, `{ firstName: 'goodperson' }`.
 
 ## String rules
 

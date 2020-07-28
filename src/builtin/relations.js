@@ -71,22 +71,25 @@ module.exports = {
       validator,
     });
   },
-  NotIn: array => {
+  NotIn: function (array) {
     types.checkAndErr.Array(array);
+
+    const validator = data => !this.In(array).validate(data);
+
     return new Rule({
       name: 'not in array',
-      validator: ele => array.indexOf(ele) === -1,
+      validator,
     });
   },
-  AllIn: array => {
+  AllIn: function (array) {
     types.checkAndErr.Array(array);
     return new Rule({
       name: 'all in array',
       validator: testArray => {
         return (
           Array.isArray(testArray) &&
-          // Check that every test element is in the target array.
-          testArray.every(testEle => array.indexOf(testEle) !== -1)
+          // Check that every test element satisfies an element in the target array.
+          testArray.every(testEle => this.In(array).validate(testEle))
         );
       },
     });

@@ -48,6 +48,16 @@ describe('relational rules correctly validate the input', () => {
     [relations.NotIn([1, 'foo', 'bar']), 'foo', false],
     [relations.NotIn([1, 'foo', 'bar']), 'bar', false],
     [relations.NotIn([1, 'foo', 'bar']), 2, true],
+    [
+      relations.NotIn([10, { foo: relations.Eq('bar') }, 'bar']),
+      { foo: 'bar' },
+      false,
+    ],
+    [
+      relations.NotIn([10, { foo: relations.Eq('neg') }, 'bar']),
+      { foo: 'bar' },
+      true,
+    ],
     [relations.AllIn([1, 'foo', 'bar']), [1, 'foo', 'bar'], true],
     [relations.AllIn([1, 'foo', 'bar']), ['foo', 'bar'], true],
     [relations.AllIn(['foo', 'bar']), [1, 'foo', 'bar'], false],
